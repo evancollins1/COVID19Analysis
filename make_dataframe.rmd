@@ -15,10 +15,6 @@ output:
 
 https://github.com/nytimes/covid-19-data
 
-```{r}
-rm(list=ls())
-```
-
 
 ```{r}
 # Option 1 for Cases - Load in live case data by county dataset (NYT)
@@ -83,7 +79,6 @@ row.names(case_and_mask_data) <- case_and_mask_data$FIPS
 ```
 
 ```{r}
-
 # Unemployment
 
 # https://www.ers.usda.gov/data-products/county-level-data-sets/download-data/
@@ -173,7 +168,7 @@ url_population_data = ("https://evancollins.com/PopulationEstimates.csv")
 population_data <- read_csv(url(url_population_data))
 
 # select cool columns for us to analyze
-population_data_select <- subset(population_data, select=c("FIPStxt", "POP_ESTIMATE_2019", "R_NET_MIG_2019", "R_death_2019", "R_birth_2019", "Rural-urban_Continuum Code_2013"))
+population_data_select <- subset(population_data, select=c("FIPStxt", "POP_ESTIMATE_2019", "R_NET_MIG_2019", "R_death_2019", "R_birth_2019", "Rural-urban_Continuum Code_2013", "Economic_typology_2015"))
 
 population_data_select <- population_data_select[complete.cases(population_data_select),]
 
@@ -197,33 +192,45 @@ rough_df <- case_and_mask_and_jobs_and_poverty_and_education_and_population_data
 
 # Select columns
 
-rough_df <- subset(rough_df, select=c("Countyname", "ST_Name", "FIPS", "Confirmed", "Deaths", "IncidenceRate", "NewCases", "NEVER", "RARELY", "SOMETIMES", "FREQUENTLY", "ALWAYS", "Unemployment_rate_2019", "Median_Household_Income_2019", "Civilian_labor_force_2019", "Med_HH_Income_Percent_of_State_Total_2019", "PCTPOVALL_2019", "Percent of adults with less than a high school diploma, 2014-18", "Percent of adults with a bachelor's degree or higher, 2014-18", "POP_ESTIMATE_2019", "R_NET_MIG_2019", "R_death_2019", "R_birth_2019", "Rural-urban_Continuum Code_2013"))
-names(rough_df)[names(rough_df) == "NewCases"] <- "NewCases_02_09_21"
-names(rough_df)[names(rough_df) == "NEVER"] <- "never_mask_survey"
-names(rough_df)[names(rough_df) == "RARELY"] <- "rarely_mask_survey"
-names(rough_df)[names(rough_df) == "SOMETIMES"] <- "sometimes_mask_survey"
-names(rough_df)[names(rough_df) == "FREQUENTLY"] <- "frequently_mask_survey"
-names(rough_df)[names(rough_df) == "ALWAYS"] <- "always_mask_survey"
-names(rough_df)[names(rough_df) == "Percent of adults with less than a high school diploma, 2014-18"] <- "percent_adults_less_than_hs"
-names(rough_df)[names(rough_df) == "Percent of adults with a bachelor's degree or higher, 2014-18"] <- "percent_adults_bach_or_higher"
-names(rough_df)[names(rough_df) == "Rural-urban_Continuum Code_2013"] <- "rural_urban_code"
+rough_df <- subset(rough_df, select=c("Countyname", "ST_Name", "FIPS", "Confirmed", "Deaths", "IncidenceRate", "NewCases", "NEVER", "RARELY", "SOMETIMES", "FREQUENTLY", "ALWAYS", "Unemployment_rate_2019", "Median_Household_Income_2019", "Civilian_labor_force_2019", "Med_HH_Income_Percent_of_State_Total_2019", "PCTPOVALL_2019", "Percent of adults with less than a high school diploma, 2014-18", "Percent of adults with a bachelor's degree or higher, 2014-18", "POP_ESTIMATE_2019", "R_NET_MIG_2019", "R_death_2019", "R_birth_2019", "Rural-urban_Continuum Code_2013", "Economic_typology_2015"))
+names(rough_df)[names(rough_df) == "Countyname"] <- "County_Name"
+names(rough_df)[names(rough_df) == "ST_Name"] <- "State_Name"
+names(rough_df)[names(rough_df) == "Confirmed"] <- "Covid_Confirmed_Cases"
+names(rough_df)[names(rough_df) == "Deaths"] <- "Covid_Deaths"
+names(rough_df)[names(rough_df) == "Incidence"] <- "Covid_Incidence_Rate"
+names(rough_df)[names(rough_df) == "NewCases"] <- "Covid_New_Cases"
+names(rough_df)[names(rough_df) == "NEVER"] <- "Never_Wear_Mask_Survey"
+names(rough_df)[names(rough_df) == "RARELY"] <- "Rarely_Wear_Mask_Survey"
+names(rough_df)[names(rough_df) == "SOMETIMES"] <- "Sometimes_Wear_Mask_Survey"
+names(rough_df)[names(rough_df) == "FREQUENTLY"] <- "Frequently_Wear_Mask_Survey"
+names(rough_df)[names(rough_df) == "ALWAYS"] <- "Always_Wear_Mask_Survey"
+names(rough_df)[names(rough_df) == "Unemployment_rate_2019"] <- "Unemployment_Rate_2019"
+names(rough_df)[names(rough_df) == "Civilian_labor_force_2019"] <- "Civilian_Labor_Force_2019"
+names(rough_df)[names(rough_df) == "Med_HH_Income_Percent_of_State_Total_2019"] <- "Median_Household_Income_Percent_of_State_Total_2019"
+names(rough_df)[names(rough_df) == "PCTPOVALL_2019"] <- "Percent_Poverty_2019"
+names(rough_df)[names(rough_df) == "Percent of adults with less than a high school diploma, 2014-18"] <- "Percent_Adults_Less_Than_HS"
+names(rough_df)[names(rough_df) == "Percent of adults with a bachelor's degree or higher, 2014-18"] <- "Percent_Adults_Bachelors_or_Higher"
+names(rough_df)[names(rough_df) == "POP_ESTIMATE_2019"] <- "Population_2019"
+names(rough_df)[names(rough_df) == "R_NET_MIG_2019"] <- "Net_Migration_Rate_2019"
+names(rough_df)[names(rough_df) == "R_death_2019"] <- "Death_Rate_2019"
+names(rough_df)[names(rough_df) == "R_birth_2019"] <- "Birth_Rate_2019"
+names(rough_df)[names(rough_df) == "Rural-urban_Continuum Code_2013"] <- "Rural_Urban_Code_2013"
+names(rough_df)[names(rough_df) == "Economic_typology_2015"] <- "Economic_Typology_2015"
 ```
 
 ```{r}
 # scale columns by population
-
-toScale <- c("Confirmed", "Deaths", "NewCases_02_09_21", "Civilian_labor_force_2019")
-
+toScale <- c("Covid_Confirmed_Cases", "Covid_Deaths", "Covid_New_Cases", "Civilian_Labor_Force_2019")
 for(i in 1:length(toScale)){
-  rough_df[[paste(toScale[i],"_as_pct", sep="")]] <- rough_df[[toScale[i]]] / rough_df$POP_ESTIMATE_2019
+  rough_df[[paste(toScale[i],"_as_pct", sep="")]] <- rough_df[[toScale[i]]] / rough_df$Population_2019
 }
-
 # Save
 covid_and_demographics <- subset(rough_df, select=-c(4:7, 15))
 ```
 
 ```{r}
 # Replace with your desired directory
-write.csv(covid_and_demographics, "/Users/kellyfarley/Desktop/Multivariate Stats/Final Project/covid_and_demographics.csv")
+write.csv(covid_and_demographics, "/Users/Evan/Desktop/s&ds 563/covid_and_demographics.csv")
 ```
+
 
